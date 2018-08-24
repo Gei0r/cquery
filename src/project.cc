@@ -572,8 +572,33 @@ std::vector<Project::Entry> LoadCompilationEntriesFromDirectory(
     // Try to load compile_commands.json, but fallback to a project listing.
   } else {
     project->mode = ProjectMode::ExternalCommand;
+
+    // generally it would be nice if we could just let clang load the
+    // compilation database (compile_commands.json) from memory.
+    // However, clang insists on reading compile_commands.json from a
+    // directory, so we create a temporary directory just for clang to read
+    // from.
 #if defined(_WIN32)
-// TODO
+    {
+        // get "temp" dir
+        TCHAR tmpdir_buf[MAX_PATH];
+        DWORD len = GetTempPath(MAX_PATH, tmpdir_buf);
+
+        // Unfortunately, there is no mkdtemp() on windows. We append a
+        // (random) GUID to use as a unique directory name.
+        GUID guid;
+        CoCreateGuid(&guid);
+        len += StringFromGUID2(&guid, tmpdir_buf + len, MAX_PATH - len);
+
+        comp_db_dir = std::string(tmpdir_buf, len);
+
+        // finally, create the dir
+        LOG_S(INFO) << "Creating temporary path " << comp_db_dir;
+        if(!TryMakeDirectory(comp_db_dir))
+        {
+            return {};
+        }
+    }
 #else
     char tmpdir[] = "/tmp/cquery-compdb-XXXXXX";
     if (!mkdtemp(tmpdir))
