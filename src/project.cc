@@ -578,32 +578,14 @@ std::vector<Project::Entry> LoadCompilationEntriesFromDirectory(
     // However, clang insists on reading compile_commands.json from a
     // directory, so we create a temporary directory just for clang to read
     // from.
-#if defined(_WIN32)
-    {
-        // get "temp" dir
-        TCHAR tmpdir_buf[MAX_PATH];
-        DWORD len = GetTempPath(MAX_PATH, tmpdir_buf);
 
-        // Unfortunately, there is no mkdtemp() on windows. We append a
-        // (random) GUID to use as a unique directory name.
-        GUID guid;
-        CoCreateGuid(&guid);
-        len += StringFromGUID2(&guid, tmpdir_buf + len, MAX_PATH - len);
-
-        comp_db_dir = std::string(tmpdir_buf, len);
-
-        // finally, create the dir
-        LOG_S(INFO) << "Creating temporary path " << comp_db_dir;
-        if(!TryMakeDirectory(comp_db_dir))
-        {
-            return {};
-        }
+    char templ[] = "/tmp/cquery-compdb-XXXXXX";
+    auto tmpdir = TryMakeTempDirectory(templ);
+    if(!tmpdir.has_value()) {
+        return {};
     }
-#else
-    char tmpdir[] = "/tmp/cquery-compdb-XXXXXX";
-    if (!mkdtemp(tmpdir))
-      return {};
-    comp_db_dir = tmpdir;
+    comp_db_dir = tmpdir.value();
+
     rapidjson::StringBuffer input;
     rapidjson::Writer<rapidjson::StringBuffer> writer(input);
     JsonWriter json_writer(&writer);
@@ -614,7 +596,7 @@ std::vector<Project::Entry> LoadCompilationEntriesFromDirectory(
         input.GetString());
     std::ofstream(comp_db_dir + "/compile_commands.json")
         << contents.value_or("");
-#endif
+
   }
 
   CXCompilationDatabase_Error cx_db_load_error =
