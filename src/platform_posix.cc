@@ -179,7 +179,7 @@ optional<AbsolutePath> TryMakeTempDirectory(char *tmpl) {
     if(!mkdtemp(tmpl)) {
         return {};
     }
-    return tmpl;
+    return AbsolutePath(tmpl);
 }
 
 void SetCurrentThreadName(const std::string& thread_name) {
