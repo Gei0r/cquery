@@ -21,6 +21,8 @@
 
 #if defined(__unix__) || defined(__APPLE__)
 #include <unistd.h>
+#elif defined(_WIN32)
+#include <direct.h>
 #endif
 
 #include <optional.h>
@@ -627,7 +629,8 @@ std::vector<Project::Entry> LoadCompilationEntriesFromDirectory(
 
   if (!g_config->compilationDatabaseCommand.empty()) {
 #if defined(_WIN32)
-// TODO
+    _unlink((comp_db_dir + "compile_commands.json").c_str());
+    _rmdir(comp_db_dir.c_str());
 #else
     unlink((comp_db_dir + "compile_commands.json").c_str());
     rmdir(comp_db_dir.c_str());
