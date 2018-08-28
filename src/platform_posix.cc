@@ -31,6 +31,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <ftw.h>
 
 #include <semaphore.h>
 #include <sys/mman.h>
@@ -164,6 +165,17 @@ optional<AbsolutePath> NormalizePath(const std::string& path,
                                      bool ensure_exists,
                                      bool force_lower_on_windows) {
   return RealPathNotExpandSymlink(path, ensure_exists);
+}
+
+static int nftwCallback(const char *name, const stat * /*unused*/,
+                    int /*unused*/, FTW * /*unused*/) {
+    remove(name);
+    return 0;
+}
+
+void RemoveDirectoryRecursive(const AbsolutePath &path) {
+    // https://stackoverflow.com/a/5467788/2192139
+    nftw(path.c_str(), nftwCallback, 64, FTW_DEPTH | FTW_PHYS);
 }
 
 bool TryMakeDirectory(const AbsolutePath& absolute_path) {
