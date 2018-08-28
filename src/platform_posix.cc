@@ -167,7 +167,7 @@ optional<AbsolutePath> NormalizePath(const std::string& path,
   return RealPathNotExpandSymlink(path, ensure_exists);
 }
 
-static int nftwCallback(const char *name, const stat * /*unused*/,
+static int nftwCallback(const char *name, const struct stat * /*unused*/,
                     int /*unused*/, FTW * /*unused*/) {
     remove(name);
     return 0;
@@ -175,7 +175,7 @@ static int nftwCallback(const char *name, const stat * /*unused*/,
 
 void RemoveDirectoryRecursive(const AbsolutePath &path) {
     // https://stackoverflow.com/a/5467788/2192139
-    nftw(path.c_str(), nftwCallback, 64, FTW_DEPTH | FTW_PHYS);
+    nftw(path.path.c_str(), nftwCallback, 64, FTW_DEPTH | FTW_PHYS);
 }
 
 bool TryMakeDirectory(const AbsolutePath& absolute_path) {
