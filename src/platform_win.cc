@@ -128,7 +128,7 @@ bool TryMakeDirectory(const AbsolutePath& absolute_path) {
   return true;
 }
 
-optional<AbsolutePath> TryMakeTempDirectory(char * /* tmpl: ignored */) {
+optional<AbsolutePath> TryMakeTempDirectory() {
     // get "temp" dir
     char tmpdir_buf[MAX_PATH];
     DWORD len = GetTempPath(MAX_PATH, tmpdir_buf);
@@ -150,7 +150,7 @@ optional<AbsolutePath> TryMakeTempDirectory(char * /* tmpl: ignored */) {
     LOG_S(2) << "Creating temporary path " << dirPath;
     if(!TryMakeDirectory(dirPath))
     {
-        return {};
+        return nullopt;
     }
 
     return dirPath;

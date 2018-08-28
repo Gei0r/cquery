@@ -175,9 +175,10 @@ bool TryMakeDirectory(const AbsolutePath& absolute_path) {
   return true;
 }
 
-optional<AbsolutePath> TryMakeTempDirectory(char *tmpl) {
+optional<AbsolutePath> TryMakeTempDirectory() {
+    char tmpl[] = "/tmp/cquery-XXXXXX";
     if(!mkdtemp(tmpl)) {
-        return {};
+        return nullopt;
     }
     return AbsolutePath(tmpl);
 }

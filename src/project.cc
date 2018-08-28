@@ -581,8 +581,7 @@ std::vector<Project::Entry> LoadCompilationEntriesFromDirectory(
     // directory, so we create a temporary directory just for clang to read
     // from.
 
-    char templ[] = "/tmp/cquery-compdb-XXXXXX";
-    auto tmpdir = TryMakeTempDirectory(templ);
+    auto tmpdir = TryMakeTempDirectory();
     if(!tmpdir.has_value()) {
         return {};
     }
