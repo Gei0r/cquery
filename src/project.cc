@@ -21,8 +21,6 @@
 
 #if defined(__unix__) || defined(__APPLE__)
 #include <unistd.h>
-#elif defined(_WIN32)
-#include <direct.h>
 #endif
 
 #include <optional.h>
